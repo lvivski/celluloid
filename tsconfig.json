@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
+		"lib": ["esnext", "dom", "dom.iterable"],
+		"module": "esnext",
+		"moduleResolution": "node",
+		"outDir": "lib",
+		"sourceMap": true,
+		"strict": true,
+		"target": "esnext",
+		"rootDir": "./src"
+	},
+	"include": ["src"],
+	"exclude": ["node_modules"]
+}

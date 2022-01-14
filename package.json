@@ -1,0 +1,15 @@
+{
+  "name": "celluloid",
+  "version": "0.1.0",
+	"type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+		"build": "tsc --project tsconfig.json",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
+    "prepare": "npm run build"
+	},
+  "author": "Yehor Lvivski <yehor@lvivski.com>",
+  "license": "MIT"
+}
