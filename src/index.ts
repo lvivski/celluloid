@@ -12,6 +12,11 @@ interface StreamFilter {
 	filter(stream: MediaStream): void
 }
 
+type LayoutConfiguration = {
+	type: 'split' | 'picture-in-picture'
+	container: 'round' | 'square' | 'original'
+}
+
 const videoType = ['webm', 'ogg', 'mp4'].filter(type => MediaRecorder.isTypeSupported(`video/${type}`))[0]
 
 class Celluloid extends EventTarget {
@@ -100,6 +105,7 @@ class Celluloid extends EventTarget {
 		var recordingChunks: Blob[] = []
 
 		mediaRecorder.start()
+
 		mediaRecorder.onstop = () => {
 			var blob = new Blob(recordingChunks, { type: `video/${videoType}` })
 			this.#mediaURL = URL.createObjectURL(blob)
@@ -135,7 +141,7 @@ class Celluloid extends EventTarget {
 		URL.revokeObjectURL(this.#mediaURL)
 	}
 
-	compose(streams: MediaStream[]): MediaStream {
+	compose(streams: MediaStream[], layout: LayoutConfiguration): MediaStream {
 		const videos = streams.map(stream => {
 			const video = document.createElement('video')
 			video.muted = true
@@ -147,27 +153,43 @@ class Celluloid extends EventTarget {
 
 		const canvas = document.createElement('canvas')
 		const ctx = canvas.getContext('2d')!
-		const output = canvas.captureStream()
+
+		canvas.width = 1920
+		canvas.height = 1080
+
+		canvas.style.width = `${canvas.width / window.devicePixelRatio}`
+		canvas.style.height = `${canvas.height / window.devicePixelRatio}`
 
 		function renderFrame() {
-			videos.map(video => {
+			videos.forEach((video, index) => {
 				if (video.readyState < video.HAVE_CURRENT_DATA) {
 					return
 				}
 
-				if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
-					canvas.width = video.videoWidth
-					canvas.height = video.videoHeight
-				}
+				ctx.save()
+				if (index === 0) {
+					ctx.drawImage(video, 0, 0)
+				} else {
+					ctx.translate(canvas.width / 2, canvas.height / 2)
+					ctx.scale(.5, .5)
 
-				ctx.drawImage(video, 0, 0)
+					ctx.beginPath()
+					const radius = Math.round(Math.min(video.videoWidth, video.videoHeight) / 2)
+					const xOffset = video.videoWidth / 2
+					const yOffset = video.videoHeight / 2
+					ctx.arc(xOffset, yOffset, radius, 0, 2 * Math.PI)
+					ctx.closePath()
+					ctx.clip()
+					ctx.drawImage(video, 0, 0)
+				}
+				ctx.restore()
 			})
 			requestAnimationFrame(renderFrame)
 		}
 
-		renderFrame()
+		requestAnimationFrame(renderFrame)
 
-		return output
+		return canvas.captureStream()
 	}
 }
 
