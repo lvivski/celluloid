@@ -10,6 +10,12 @@
     "lint:fix": "npm run lint -- --fix",
     "prepare": "npm run build"
 	},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5",
+    "@typescript-eslint/parser": "^5",
+    "eslint": "^8",
+    "typescript": "^4"
+  },
   "author": "Yehor Lvivski <yehor@lvivski.com>",
   "license": "MIT"
 }
